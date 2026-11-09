@@ -51,13 +51,6 @@ function renderAll() {
   //   createElement + textContent + setAttribute("class", ...) + append, then
   //   clear the feed with feed.replaceChildren() and append each node.
 
-    // DELETE FROM HERE
-    // feed.innerHTML = comments
-    //   .map((c) => "<li class='comment-row'><span class='author'>" + c.author +
-    //     "</span>: " + c.body + "</li>")
-    //   .join("");
-    // DELETE TO HERE
-
   feed.replaceChildren(...comments.map(renderComment));
 }
 
@@ -69,11 +62,6 @@ function addComment(author, body) {
   // COMPLETE: Same defense point on the add path. A fix that only changes
   // renderAll() leaves this path open — the payload fires again when a comment
   // is added. Route this through the SAME safe renderComment helper.
-
-  // DELETE FROM HERE
-  // feed.innerHTML += "<li class='comment-row'><span class='author'>" + author +
-  //   "</span>: " + body + "</li>";
-  // DELETE TO HERE
 
   feed.append(renderComment({ author, body }));
 

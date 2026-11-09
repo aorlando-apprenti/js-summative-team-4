@@ -26,10 +26,15 @@ function renderComment(comment, host) {
   const el = document.createElement("div");
   el.className = "comment";
 
-  // TODO: Sanitize comment.html (DOMPurify with a strict config, or a manual
+  // COMPLETE: Sanitize comment.html (DOMPurify with a strict config, or a manual
   //       allow-list sanitizer) and assign the cleaned string here — with no
   //       concatenation after the sanitizer runs.
-  el.innerHTML = comment.html; // VULNERABLE: untrusted HTML straight to the sink
+  const cleanHtml = DOMPurify.sanitize(comment.html, {
+    ALLOWED_TAGS: ["b", "i", "a", "ul", "li"],
+    ALLOWED_ATTR: ["href"]
+  });
+
+  el.innerHTML = cleanHtml; // SAFE: sanitized HTML assigned to the sink
 
   host.appendChild(el);
 }
