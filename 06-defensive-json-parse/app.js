@@ -19,6 +19,8 @@
 // A tiny stand-in for a fetch Response, so this lab stays framework- and
 // network-free. `text()` returns the raw body; `json()` parses it (and throws
 // on malformed JSON, exactly like the real thing).
+
+const ALLOWED_ROLES = new Set(["admin"]);
 export function makeResponse(body) {
   return {
     text: async () => body,
@@ -30,7 +32,19 @@ export function makeResponse(body) {
 export async function loadProfile(response) {
   // response.json() calls JSON.parse for you — and throws a SyntaxError on a
   // truncated or otherwise malformed body, with nothing here to catch it.
-  const data = await response.json();
+  let data;
+
+  try {
+    const body = await response.text();
+
+    if (typeof body !== "string" || body.trim() === "") {
+      return { ok: false, reason: "Empty or non-string response body" };
+    }
+
+    data = JSON.parse(body);
+  } catch {
+    return { ok: false, reason: "Invalid or unreadable JSON body" };
+  }
 
   // TODO: This is the fix point. Right now the handler trusts the parsed shape:
   //   - it does not wrap the parse to convert a SyntaxError into a safe rejection
@@ -40,12 +54,46 @@ export async function loadProfile(response) {
   // Replace the blind property access below with: safeParse -> shape validation
   // (Object.hasOwn for keys, typeof / Array.isArray for types) -> bounds checks,
   // returning { ok: true, profile } or { ok: false, reason } and never throwing.
-  const profile = {
-    name: data.user.name,                 // throws when there is no `user` key
-    roles: data.user.roles.map((r) => r), // throws when `roles` is not an array
-  };
+  if (
+    data === null ||
+    typeof data !== "object" ||
+    Array.isArray(data) ||
+    !Object.hasOwn(data, "user")
+  ) {
+    return { ok: false, reason: "Expected a user object" };
+  }
 
-  // Even when this does not throw (e.g. wrong-types makes name === null and
-  // roles a bare string), it hands a corrupt profile back as if it were valid.
-  return { ok: true, profile };
+  const user = data.user;
+
+  if (
+    user === null ||
+    typeof user !== "object" ||
+    Array.isArray(user) ||
+    !Object.hasOwn(user, "id") ||
+    !Object.hasOwn(user, "name") ||
+    !Object.hasOwn(user, "roles")
+  ) {
+    return { ok: false, reason: "Expected a user with id, name, and roles" };
+  }
+
+  const { id, name, roles } = user;
+
+  if (
+    !Number.isFinite(id) ||
+    typeof name !== "string" ||
+    !Array.isArray(roles) ||
+    !roles.every((role) => typeof role === "string")
+  ) {
+    return { ok: false, reason: "Invalid profile field types" };
+  }
+
+  if (name.length > 100) {
+    return { ok: false, reason: "Name exceeds 100 characters" };
+  }
+
+  if (!roles.every((role) => ALLOWED_ROLES.has(role))) {
+    return { ok: false, reason: "Profile contains an unsupported role" };
+  }
+
+  return { ok: true, profile: { name, roles } };
 }
