@@ -23,7 +23,7 @@ function render() {
   // Replace this so the value is rendered as inert text.
   //
   //   Hint: panel.replaceChildren(); panel.textContent = "Viewing: " + tabName;
-  panel.innerHTML = "Viewing: " + tabName;                 // sink 1
+  panel.textContent = "Viewing: " + tabName; // sink 1
 
   // TODO: Defense point — sink 2. A second sink builds a detail string from the
   // same untrusted value and inserts it as HTML. Fixing only sink 1 leaves this
@@ -32,11 +32,9 @@ function render() {
   // node, or use insertAdjacentText.
   //
   //   Hint:
-  //   const detail = document.createElement("small");
-  //   detail.textContent = "tab id: " + tabName;
-  //   panel.append(detail);
-  const detailString = "<small>tab id: " + tabName + "</small>";
-  panel.insertAdjacentHTML("beforeend", detailString);     // sink 2
+  const detail = document.createElement("small");
+  detail.textContent = "tab id: " + tabName;
+  panel.append(detail);
 }
 
 window.addEventListener("hashchange", render);
