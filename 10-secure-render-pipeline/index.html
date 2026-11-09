@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Secure Render Pipeline — fetch &rarr; parse &rarr; render</title>
+  <style>
+    body { font-family: system-ui, sans-serif; max-width: 50rem; margin: 2rem auto; padding: 0 1rem; line-height: 1.5; }
+    h1 { font-size: 1.4rem; }
+    #article { margin: 1rem 0; padding: 0.75rem 1rem; border: 1px solid #ccc; border-radius: 8px; min-height: 2rem; }
+    #article h2 { font-size: 1.1rem; margin: 0 0 0.25rem; }
+    #result { margin-top: 1.5rem; padding: 1rem; border-radius: 8px; white-space: pre-wrap; font-family: ui-monospace, monospace; font-size: 0.85rem; }
+    #result.pass { background: #e6f4ea; border: 1px solid #34a853; }
+    #result.fail { background: #fce8e6; border: 1px solid #d93025; }
+    #result.pending { background: #f1f3f4; border: 1px solid #9aa0a6; }
+    code { background: #f2f2f2; padding: 0.1rem 0.3rem; border-radius: 3px; }
+  </style>
+</head>
+<body>
+  <h1>Secure Render Pipeline: fetch &rarr; parse &rarr; render</h1>
+  <p>
+    This feature pulls an "article" response, turns the bytes into a value, and
+    puts that value on the screen. Each arrow is a trust boundary. The handler in
+    <code>app.js</code> owns the parse and render stages; <code>verify.js</code>
+    feeds it one well-formed body and a set of malformed and hostile ones, then
+    reports whether the pipeline fails closed. Open the browser console for the
+    full per-fixture log.
+  </p>
+
+  <!-- The feature renders its article here. -->
+  <div id="article"></div>
+
+  <h2>Attack harness verdict</h2>
+  <div id="result" class="pending">Running the harness&hellip;</div>
+
+  <!-- DOMPurify is loaded for the ONE field that genuinely carries HTML. -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/dompurify/3.0.6/purify.min.js"></script>
+  <script src="app.js"></script>
+  <script src="verify.js"></script>
+</body>
+</html>

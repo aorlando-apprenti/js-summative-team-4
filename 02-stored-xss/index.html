@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Stored XSS Lab — Comment Feed</title>
+  <style>
+    body { font-family: system-ui, sans-serif; max-width: 720px; margin: 2rem auto; padding: 0 1rem; }
+    #feed { list-style: none; padding: 0; }
+    #feed li { padding: 0.5rem 0.75rem; border-bottom: 1px solid #eee; }
+    .author { font-weight: 600; }
+    form { margin: 1rem 0; display: grid; gap: 0.5rem; max-width: 420px; }
+    input, textarea { padding: 0.4rem; font: inherit; }
+    #result { margin-top: 1.5rem; padding: 1rem; border-radius: 6px; font-weight: 600; white-space: pre-wrap; }
+    .pass { background: #e6f4ea; color: #1e7e34; border: 1px solid #1e7e34; }
+    .fail { background: #fde8e8; color: #b02a37; border: 1px solid #b02a37; }
+  </style>
+</head>
+<body>
+  <h1>Comment Board</h1>
+  <p>Comments are saved to <code>localStorage</code> (standing in for a backend)
+     and rendered into the feed below.</p>
+
+  <form id="comment-form">
+    <input id="author" placeholder="Your name" value="guest" />
+    <textarea id="body" placeholder="Your comment"></textarea>
+    <button type="submit">Post comment</button>
+  </form>
+
+  <ul id="feed"></ul>
+
+  <!-- Attack harness verdict -->
+  <div id="result">Running attack harness…</div>
+
+  <script src="app.js"></script>
+  <script src="verify.js"></script>
+</body>
+</html>

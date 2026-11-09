@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>JSON.stringify Pitfalls and Safe Serialization</title>
+  <style>
+    body { font-family: system-ui, sans-serif; max-width: 50rem; margin: 2rem auto; padding: 0 1rem; line-height: 1.5; }
+    h1 { font-size: 1.4rem; }
+    #result { margin-top: 1rem; padding: 1rem; border-radius: 6px; white-space: pre-wrap; font-family: ui-monospace, monospace; font-size: 0.85rem; }
+    #result.pass { background: #e6f4ea; border: 1px solid #34a853; }
+    #result.fail { background: #fce8e6; border: 1px solid #d93025; }
+    #result.pending { background: #f1f3f4; border: 1px solid #9aa0a6; }
+  </style>
+</head>
+<body>
+  <h1>JSON.stringify Pitfalls and Safe Serialization</h1>
+  <p>
+    This page hands a rich session object &mdash; one that carries a secret
+    <code>sessionToken</code> and internal-only flags &mdash; to the serializer in
+    <code>app.js</code>. The harness in <code>verify.js</code> checks whether the
+    secret leaked into the serialized string. Open the browser console for the
+    full log.
+  </p>
+  <div id="result" class="pending">Running the harness&hellip;</div>
+
+  <!-- app.js holds the serializer under test; verify.js drives it. Both are ES modules. -->
+  <script type="module" src="./app.js"></script>
+  <script type="module" src="./verify.js"></script>
+</body>
+</html>
