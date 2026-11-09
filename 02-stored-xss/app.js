@@ -21,12 +21,28 @@ function saveComment(author, body) {
   localStorage.setItem(STORAGE_KEY, JSON.stringify(comments));
 }
 
+// <!-- Safe rendering helper -->
+function renderComment(comment) {
+  const li = document.createElement("li");
+  li.setAttribute("class", "comment-row");
+
+  const span = document.createElement("span");
+  span.setAttribute("class", "author");
+
+  span.textContent = comment.author;
+
+  li.append(span);
+  li.append(document.createTextNode(": " + comment.body));
+
+  return li;
+}
+
 // Render path 1: full re-render on load.
 function renderAll() {
   const feed = document.getElementById("feed");
   const comments = loadComments();
 
-  // TODO: This is a defense point. Each comment's author and body are untrusted
+  // COMPLETE: This is a defense point. Each comment's author and body are untrusted
   // and are being parsed as HTML by innerHTML. Replace this string-built render
   // so every comment node is built with createElement and its fields are set
   // with textContent (see addComment's TODO too — both paths must be fixed).
@@ -34,10 +50,15 @@ function renderAll() {
   //   Hint: write one safe helper renderComment(comment) that uses
   //   createElement + textContent + setAttribute("class", ...) + append, then
   //   clear the feed with feed.replaceChildren() and append each node.
-  feed.innerHTML = comments
-    .map((c) => "<li class='comment-row'><span class='author'>" + c.author +
-      "</span>: " + c.body + "</li>")
-    .join("");
+
+    // DELETE FROM HERE
+    // feed.innerHTML = comments
+    //   .map((c) => "<li class='comment-row'><span class='author'>" + c.author +
+    //     "</span>: " + c.body + "</li>")
+    //   .join("");
+    // DELETE TO HERE
+
+  feed.replaceChildren(...comments.map(renderComment));
 }
 
 // Render path 2: append a single comment after submit.
@@ -45,11 +66,17 @@ function addComment(author, body) {
   saveComment(author, body);
   const feed = document.getElementById("feed");
 
-  // TODO: Same defense point on the add path. A fix that only changes
+  // COMPLETE: Same defense point on the add path. A fix that only changes
   // renderAll() leaves this path open — the payload fires again when a comment
   // is added. Route this through the SAME safe renderComment helper.
-  feed.innerHTML += "<li class='comment-row'><span class='author'>" + author +
-    "</span>: " + body + "</li>";
+
+  // DELETE FROM HERE
+  // feed.innerHTML += "<li class='comment-row'><span class='author'>" + author +
+  //   "</span>: " + body + "</li>";
+  // DELETE TO HERE
+
+  feed.append(renderComment({ author, body }));
+
 }
 
 // Wire up the form and initial render.
