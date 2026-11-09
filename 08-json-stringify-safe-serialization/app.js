@@ -35,7 +35,12 @@ export function serializeSession(session) {
   //   e.g. JSON.stringify(session, ["userId", "displayName", "theme", "lastSeen"]).
   //   (You could also use a replacer function or a toJSON method on a session
   //   model — any of the three enforces the allow-list.)
-  return JSON.stringify(session);
+  return JSON.stringify(session, [
+    "userId",
+    "displayName",
+    "theme",
+    "lastSeen",
+  ]);
 }
 
 // The persistence layer that actually uses the serializer.
