@@ -29,12 +29,18 @@ export function parseSettings(rawText) {
 // The naive recursive merge. There is NO key guard, so "__proto__",
 // "constructor", and "prototype" are treated like any other field — including
 // inside the recursion, which is how a nested payload reaches the prototype too.
-function deepMerge(target, source) {
+function deepMerge(target, source) { // FIXED: added key guard and own-property check
   for (const key in source) {
+    if (!Object.hasOwn(source, key)) { 
+      continue;
+    }
+    if (["__proto__", "constructor", "prototype"].includes(key)) { 
+      continue;
+    }
     if (isObject(target[key]) && isObject(source[key])) {
-      deepMerge(target[key], source[key]); // recurse with no guard
+      deepMerge(target[key], source[key]); // recurse with no guard - FIXED
     } else {
-      target[key] = source[key]; // __proto__ / constructor write through here
+      target[key] = source[key]; // __proto__ / constructor write through here - FIXED
     }
   }
   return target;
@@ -42,7 +48,7 @@ function deepMerge(target, source) {
 
 // Apply a parsed settings source over a fresh copy of the defaults.
 export function applySettings(parsedSource) {
-  // TODO: This is the fix point. This merge is unsafe in two ways:
+  // COMPLETE: This is the fix point. This merge is unsafe in two ways:
   //   1. It builds onto a plain {} whose prototype is Object.prototype, so a
   //      "__proto__" / "constructor" key writes through to the shared prototype.
   //   2. It has no key guard at any level, so flat AND nested payloads pollute.
@@ -50,7 +56,8 @@ export function applySettings(parsedSource) {
   // "__proto__", "constructor", or "prototype" at EVERY recursion level; copy
   // only own keys with Object.hasOwn; and (optionally) strip dangerous keys at
   // parse time with a JSON.parse reviver in parseSettings above.
-  const target = {}; // plain object — prototype is Object.prototype
+
+  const target = Object.create(null); // plain object — prototype is Object.prototype - FIXED
   // Seed with a shallow copy of the defaults so a real update merges over them.
   for (const key in DEFAULT_SETTINGS) {
     target[key] = DEFAULT_SETTINGS[key];

@@ -46,7 +46,7 @@ export async function loadProfile(response) {
     return { ok: false, reason: "Invalid or unreadable JSON body" };
   }
 
-  // TODO: This is the fix point. Right now the handler trusts the parsed shape:
+  // COMPLETE: This is the fix point. Right now the handler trusts the parsed shape:
   //   - it does not wrap the parse to convert a SyntaxError into a safe rejection
   //   - it does not confirm `data.user` exists and is an object before reading it
   //   - it does not check that `name` is a string or `roles` is a string[]

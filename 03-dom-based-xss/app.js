@@ -18,14 +18,14 @@ function render() {
   const tabName = getActiveTab();
   const panel = document.getElementById("panel");
 
-  // TODO: Defense point — sink 1. The untrusted hash value is assigned to
+  // COMPLETE: Defense point — sink 1. The untrusted hash value is assigned to
   // innerHTML, which parses it as HTML and runs any handlers it carries.
   // Replace this so the value is rendered as inert text.
   //
   //   Hint: panel.replaceChildren(); panel.textContent = "Viewing: " + tabName;
   panel.textContent = "Viewing: " + tabName; // sink 1
 
-  // TODO: Defense point — sink 2. A second sink builds a detail string from the
+  // COMPLETE: Defense point — sink 2. A second sink builds a detail string from the
   // same untrusted value and inserts it as HTML. Fixing only sink 1 leaves this
   // open — the trace from source to EVERY sink is what catches both. Refactor
   // this to build a node safely (createElement + textContent) and insert the

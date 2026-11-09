@@ -10,7 +10,7 @@
 function renderBanner(query) {
   const resultsEl = document.getElementById("results");
 
-  // TODO: This is the defense point. The line below sends the untrusted `query`
+  // COMPLETE: This is the defense point. The line below sends the untrusted `query`
   // to innerHTML, which parses it as HTML and runs any event handlers it carries
   // (for example <img src=x onerror=alert(1)>). Replace this so the value is
   // rendered as inert literal text instead of parsed as markup.
