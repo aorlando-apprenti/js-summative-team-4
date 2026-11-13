@@ -18,11 +18,26 @@ const DEFAULT_SETTINGS = { theme: "light", pageSize: 10 };
 function parseConfig(text) {
   // A bare JSON.parse: no try/catch (a malformed body throws straight through
   // the caller), and the result is read with no shape or type checks at all.
-  const cfg = JSON.parse(text);
-  return {
+  try {
+    const cfg = JSON.parse(text);
+
+    if (typeof cfg !== "object" || 
+      cfg === null || 
+      Array.isArray(cfg) ||
+      typeof cfg.title !== "string" ||
+      typeof cfg.maxItems !== "number" ||
+      cfg.maxItems <= 0
+    ) {
+      throw new Error("Invalid config format");
+    }
+
+    return {
     title: cfg.title,        // assumed to be a string; never verified
     maxItems: cfg.maxItems,  // assumed to be a number; never verified
   };
+  } catch (error) {
+    return { title: "", maxItems: 0 }; // Return safe defaults on error
+  }
 }
 
 // Recursively deep-merge `source` onto `target` (so nested settings objects are
@@ -30,25 +45,54 @@ function parseConfig(text) {
 // when a key is "__proto__", `target[key]` reaches Object.prototype, and the
 // nested merge writes onto it.
 function deepMerge(target, source) {
-  for (const key in source) {
-    if (typeof source[key] === "object" && source[key] !== null) {
-      if (!target[key]) target[key] = {};
-      deepMerge(target[key], source[key]); // key === "__proto__" -> pollutes
-    } else {
-      target[key] = source[key];
+
+  const badKeys = ["__proto__", "constructor", "prototype"];
+
+  for (const key of Object.keys(source)) {
+    if (badKeys.includes(key)) {
+      continue;
     }
+
+    const value = source[key];
+
+    if (typeof value === "object" && 
+      value !== null && !Array.isArray(value)) {
+
+      if (!Object.hasOwn(target, key) ||
+        typeof target[key] !== "object" ||
+        target[key] === null ||
+        Array.isArray(target[key])
+      ) { 
+        target[key] = {}; 
+      }
+
+      deepMerge(target[key], value);
+
+    } else {
+      target[key] = value;
+    }
+    return target;
   }
+
   return target;
 }
 
 // Merge a fetched settings blob on top of the app defaults.
 function applySettings(text) {
-  const parsed = JSON.parse(text);
   // A deep merge of an untrusted object into trusted state with no __proto__
   // guard. If `parsed` carries a "__proto__" key, deepMerge writes onto
   // Object.prototype and every object on the page inherits it.
-  const settings = deepMerge({ ...DEFAULT_SETTINGS }, parsed);
-  return settings;
+  try {
+    const parsed = JSON.parse(text);
+    if (typeof parsed !== "object" || parsed === null || Array.isArray(parsed)) {
+      return { ...DEFAULT_SETTINGS };
+    }
+
+    return deepMerge({ ...DEFAULT_SETTINGS }, parsed);
+
+  } catch (e) {
+    console.error("Failed to apply settings");
+  }
 }
 
 // Expose entry points for app.js and the harness.

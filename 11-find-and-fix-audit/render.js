@@ -18,7 +18,14 @@
 function renderSearch(term, el) {
   // SOURCE: location.search ?q=  (see app.js).  SINK: innerHTML.
   // The untrusted term is concatenated into markup and parsed as HTML.
-  el.innerHTML = "Showing results for: <strong>" + term + "</strong>";
+
+  el.replaceChildren();
+
+  const strong = document.createElement("strong");
+  strong.textContent = term;
+
+  el.append("Showing results for: ", strong);
+
 }
 
 // Render one member card and append it to the list container.
@@ -34,19 +41,39 @@ function renderMember(member, listEl) {
   // Bio: rendered as HTML so light formatting shows. SINK: insertAdjacentHTML.
   // The stored bio is attacker-controllable (a saved profile field), so this is
   // a markup sink fed by persisted untrusted data.
-  card.insertAdjacentHTML("beforeend", "<p>" + member.bio + "</p>");
+
+  const bio = document.createElement("p"); // FIXED - Sanitize the bio before inserting it into the DOM
+  bio.textContent = DOMPurify.sanitize(member.bio, {
+    FORBID_TAGS: ["img", "script", "iframe"],
+    ALLOWED_TAGS: ["b", "i", "em", "strong"],
+    ALLOWED_ATTR: []
+  });
+
+  card.appendChild(bio);
 
   // Profile link. SINK: href set from untrusted data with no scheme check, so a
   // "javascript:" value becomes executable when clicked.
   const link = document.createElement("a");
-  link.href = member.website;
-  link.textContent = "Profile";
-  card.appendChild(link);
+  try {
+    const url = new URL(member.website);
+    if (url.protocol === "https:" || url.protocol === "http:") {
+      link.href = member.website;
+      link.textContent = "Profile";
+      card.appendChild(link);
+    }
+  } catch (e) {
+    console.warn("Invalid profile URL");
+  }
+  
 
   // "Say hi" button. SINK: an inline onclick string built from the member name,
   // so a name containing a quote-and-paren breakout injects code.
   const btn = document.createElement("button");
-  btn.setAttribute("onclick", "alert('hi ' + '" + member.name + "')");
+
+  btn.addEventListener("click", () => { // FIXED - Removed inline onclick to prevent XSS
+    alert("hi " + member.name);
+  });
+
   btn.textContent = "Say hi";
   card.appendChild(btn);
 

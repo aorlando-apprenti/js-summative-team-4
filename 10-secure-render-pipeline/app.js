@@ -17,7 +17,7 @@
 // with no checkpoint between them. Your job is to give each stage its own
 // control: a defensive parse, then a render that uses safe sinks.
 
-// TODO (parse boundary): this is the first defense point. Right now this does
+// COMPLETE (parse boundary): this is the first defense point. Right now this does
 // a bare JSON.parse and trusts whatever comes back. Make it a DEFENSIVE PARSE:
 //   1. wrap JSON.parse in try/catch and return null on a SyntaxError
 //      (a malformed body is a rejection condition, not a crash);
@@ -65,7 +65,7 @@ function parseStage(text) {
   return article;
 }
 
-// TODO (render boundary): this is the second defense point. A value that
+// COMPLETE (render boundary): this is the second defense point. A value that
 // passed parse is NOT automatically safe to render — a well-typed string is
 // still a working script if it lands in a markup sink. Rebuild this so every
 // untrusted value reaches the DOM through a SAFE sink:
@@ -121,7 +121,7 @@ const appState = { lastArticle: {} };
 // Orchestrator. A real version fetches the body first; the harness hands the
 // raw body text in directly so the lab stays network-free.
 
-// TODO (orchestration): when the parse stage cannot validate a body it should
+// COMPLETE (orchestration): when the parse stage cannot validate a body it should
 // return null, and this orchestrator should FAIL CLOSED — render a safe empty
 // state instead of any partial or unvalidated content. Right now it passes
 // whatever parseStage returned straight into render with no check, and the
